@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Akademie der Magie zu Hagwarts – Prismen</title>
+<style>
+:root {
+  --bg-dark: #0b0b2a;
+  --bg-card: #151545;
+  --bg-card-hover: #1c1c55;
+  --accent-gold: #ffd700;
+  --accent-purple: #a855f7;
+  --accent-purple-dark: #7c3aed;
+  --text-light: #e8e8f8;
+  --text-muted: #9090b0;
+  --success: #22c55e;
+  --error: #ef4444;
+  --warning: #f59e0b;
+  --xp-bar-bg: #1e1e50;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-light);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+/* ===== PARTICLES ===== */
+#particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: floatUp linear infinite;
+  opacity: 0;
+}
+@keyframes floatUp {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  5% { opacity: 0.8; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+}
+/* ===== HEADER ===== */
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(11,11,42,0.95);
+  backdrop-filter: blur(12px);
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  border-bottom: 2px solid var(--accent-gold);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+.rank-display {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 700; font-size: 1rem; white-space: nowrap;
+  color: var(--accent-gold);
+}
+.rank-display .rank-icon { font-size: 1.4rem; }
+.xp-section { flex: 1; min-width: 150px; }
+.xp-bar-outer {
+  height: 22px; background: var(--xp-bar-bg);
+  border-radius: 11px; position: relative; overflow: hidden;
+  border: 1px solid rgba(168,85,247,0.3);
+}
+.xp-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-purple), var(--accent-gold));
+  border-radius: 11px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  width: 0%;
+  position: relative;
+}
+.xp-bar-inner::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+  border-radius: 11px;
+}
+.xp-text {
+  display: block; text-align: center;
+  font-size: 0.75rem; color: var(--text-muted);
+  margin-top: 2px;
+}
+.question-counter {
+  font-size: 0.85rem; color: var(--text-muted);
+  white-space: nowrap;
+}
+/* ===== MAIN LAYOUT ===== */
+main {
+  position: relative; z-index: 1;
+  max-width: 860px; margin: 0 auto;
+  padding: 16px;
+  padding-bottom: 60px;
+}
+.screen { display: none; }
+.screen.active { display: block; }
+/* ===== START SCREEN ===== */
+#screen-start { text-align: center; padding: 40px 16px; }
+#screen-start h1 {
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  color: var(--accent-gold);
+  margin-bottom: 8px;
+  text-shadow: 0 0 30px rgba(255,215,0,0.3);
+}
+#screen-start .subtitle {
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  color: var(--accent-purple);
+  margin-bottom: 24px;
+}
+#screen-start .intro {
+  font-size: 1.05rem; max-width: 560px; margin: 0 auto 32px;
+  color: var(--text-muted); line-height: 1.7;
+}
+/* ===== QUESTION CARD ===== */
+.question-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(168,85,247,0.25);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 0 40px rgba(168,85,247,0.08);
+  animation: cardIn 0.4s ease;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.phase-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--accent-purple-dark), var(--accent-purple));
+  color: white; font-size: 0.8rem; font-weight: 700;
+  padding: 4px 14px; border-radius: 20px;
+  margin-bottom: 16px;
+}
+.question-title {
+  font-size: 1.05rem; color: var(--accent-gold);
+  margin-bottom: 8px; font-weight: 600;
+}
+.question-text {
+  font-size: 1.15rem; line-height: 1.65;
+  margin-bottom: 20px;
+}
+/* ===== CHECKBOX OPTIONS (MC) ===== */
+.mc-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.mc-option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 2px solid rgba(255,255,255,0.08);
+  border-radius: 12px; cursor: pointer;
+  min-height: 50px; transition: all 0.2s;
+  font-size: 1.05rem;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.mc-option:hover { background: rgba(255,255,255,0.08); }
+.mc-option.selected {
+  border-color: var(--accent-purple);
+  background: rgba(168,85,247,0.12);
+}
+.mc-option.correct-reveal {
+  border-color: var(--success) !important;
+  background: rgba(34,197,94,0.12) !important;
+}
+.mc-option.wrong-reveal {
+  border-color: var(--error) !important;
+  background: rgba(239,68,68,0.1) !important;
+}
+.mc-checkbox {
+  width: 24px; height: 24px; flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 6px; display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; transition: all 0.2s;
+}
+.mc-option.selected .mc-checkbox {
+  background: var(--accent-purple);
+  border-color: var(--accent-purple);
+}
+.mc-option.selected .mc-checkbox::after { content: '\2713'; color: white; font-weight: 700; }
+/* ===== CALC INPUT ===== */
+.calc-input-row {
+  display: flex; align-items: center; gap: 12px;
+  flex-wrap: wrap; margin-bottom: 16px;
+}
+.calc-input {
+  background: rgba(255,255,255,0.08);
+  border: 2px solid rgba(168,85,247,0.3);
+  color: var(--text-light); padding: 12px 16px;
+  border-radius: 12px; font-size: 1.15rem;
+  width: 180px; min-height: 50px;
+  outline: none; transition: border-color 0.2s;
+}
+.calc-input:focus { border-color: var(--accent-purple); }
+.calc-unit { font-size: 1.1rem; color: var(--text-muted); }
+/* ===== BUTTONS ===== */
+button {
+  min-height: 50px; padding: 12px 28px;
+  border-radius: 12px; border: none;
+  font-size: 1rem; font-weight: 600;
+  cursor: pointer; transition: all 0.25s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-purple-dark), var(--accent-purple));
+  color: white;
+  box-shadow: 0 4px 15px rgba(168,85,247,0.3);
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(168,85,247,0.45);
+}
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-gold {
+  background: linear-gradient(135deg, #b8860b, var(--accent-gold));
+  color: #1a1a2e;
+  box-shadow: 0 4px 15px rgba(255,215,0,0.25);
+}
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255,215,0,0.4); }
+.btn-secondary {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-light);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.14); }
+.button-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+/* ===== HINT SYSTEM ===== */
+.hint-section { margin-top: 16px; }
+.hint-toggle {
+  background: rgba(255,215,0,0.08);
+  border: 1px solid rgba(255,215,0,0.3);
+  color: var(--accent-gold);
+  padding: 10px 20px; border-radius: 10px;
+  font-size: 0.95rem; cursor: pointer;
+  min-height: 48px;
+}
+.hint-toggle:hover { background: rgba(255,215,0,0.15); }
+.hint-toggle:disabled { opacity: 0.4; cursor: not-allowed; }
+.hint-box {
+  background: rgba(255,215,0,0.06);
+  border-left: 3px solid var(--accent-gold);
+  padding: 12px 16px; margin: 8px 0;
+  border-radius: 0 10px 10px 0;
+  font-size: 1rem; line-height: 1.6;
+  animation: hintIn 0.3s ease;
+}
+@keyframes hintIn { from { opacity:0; transform: translateX(-10px); } to { opacity:1; transform: translateX(0); } }
+/* ===== FEEDBACK ===== */
+.feedback {
+  padding: 14px 18px; border-radius: 12px;
+  margin-top: 14px; font-size: 1rem;
+  animation: feedbackIn 0.3s ease;
+}
+@keyframes feedbackIn { from { opacity:0; transform: scale(0.95); } to { opacity:1; transform: scale(1); } }
+.feedback-correct {
+  background: rgba(34,197,94,0.12);
+  border: 1px solid var(--success);
+  color: #86efac;
+}
+.feedback-wrong {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid var(--error);
+  color: #fca5a5;
+}
+.feedback-solution {
+  background: rgba(255,215,0,0.08);
+  border: 1px solid var(--accent-gold);
+  color: var(--accent-gold);
+  margin-top: 8px;
+}
+.xp-popup {
+  display: inline-block; font-weight: 700;
+  color: var(--accent-gold);
+  animation: xpPop 0.6s ease;
+}
+@keyframes xpPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); opacity: 1; }
+}
+/* ===== SVG ===== */
+.svg-container { text-align: center; margin: 16px 0; }
+.svg-container svg {
+  max-width: 100%; height: auto;
+  display: inline-block;
+}
+/* ===== MODAL (RANK UP) ===== */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.modal-box {
+  background: linear-gradient(135deg, #151545, #1e1e60);
+  border: 2px solid var(--accent-gold);
+  border-radius: 20px; padding: 36px 32px;
+  text-align: center; max-width: 420px; width: 90%;
+  animation: modalPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 60px rgba(255,215,0,0.2);
+}
+@keyframes modalPop {
+  from { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+  to { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.modal-box h2 { color: var(--accent-gold); font-size: 1.5rem; margin-bottom: 12px; }
+.modal-box p { color: var(--text-light); font-size: 1.05rem; margin-bottom: 20px; line-height: 1.6; }
+.modal-box .rank-stars { font-size: 2rem; margin-bottom: 12px; }
+/* ===== TRANSITION SCREEN ===== */
+#screen-transition { text-align: center; padding: 40px 16px; }
+#screen-transition h2 {
+  color: var(--accent-gold); font-size: 1.6rem; margin-bottom: 16px;
+}
+#screen-transition p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 28px; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.7; }
+/* ===== END SCREEN ===== */
+#screen-end { text-align: center; padding: 30px 16px; }
+.end-card {
+  background: var(--bg-card); border: 2px solid var(--accent-gold);
+  border-radius: 20px; padding: 32px 24px;
+  max-width: 500px; margin: 0 auto;
+  box-shadow: 0 0 50px rgba(255,215,0,0.1);
+}
+.end-card h2 { color: var(--accent-gold); font-size: 1.5rem; margin-bottom: 8px; }
+.end-rank-icon { font-size: 3rem; margin: 16px 0 8px; }
+.end-rank-name { font-size: 1.3rem; color: var(--accent-purple); font-weight: 700; margin-bottom: 20px; }
+.end-stats { text-align: left; margin: 20px 0; }
+.end-stat {
+  display: flex; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 1rem;
+}
+.end-stat .label { color: var(--text-muted); }
+.end-stat .value { color: var(--text-light); font-weight: 600; }
+.end-message {
+  margin-top: 20px; padding: 16px;
+  background: rgba(168,85,247,0.1); border-radius: 12px;
+  font-size: 1.05rem; line-height: 1.6;
+  color: var(--text-light);
+}
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  header { padding: 8px 12px; gap: 8px; }
+  .rank-display { font-size: 0.85rem; }
+  main { padding: 10px; }
+  .question-card { padding: 16px; border-radius: 12px; }
+  .question-text { font-size: 1.05rem; }
+  .mc-option { padding: 12px 14px; font-size: 0.95rem; }
+}
+@media (min-width: 1024px) {
+  main { padding: 24px; }
+}
+</style>
+</head>
+<body>
+
+<div id="particles"></div>
+
+<header>
+  <div class="rank-display">
+    <span class="rank-icon" id="rank-icon">🔮</span>
+    <span id="rank-name">Neuling</span>
+  </div>
+  <div class="xp-section">
+    <div class="xp-bar-outer">
+      <div class="xp-bar-inner" id="xp-bar"></div>
+    </div>
+    <span class="xp-text" id="xp-text">0 XP</span>
+  </div>
+  <span class="question-counter" id="q-counter"></span>
+</header>
+
+<main>
+  <!-- START SCREEN -->
+  <div id="screen-start" class="screen active">
+    <h1>Akademie der Magie zu Hagwarts</h1>
+    <p class="subtitle">Meisterkurs: Die Magie der Prismen</p>
+    <p class="intro">
+      Willkommen, junger Lehrling! In der Akademie der Magie wirst du die Geheimnisse der Prismen ergr&uuml;nden.
+      L&ouml;se Aufgaben, sammle Erfahrungspunkte und steige im Rang auf &ndash; vom Neuling bis zum Gro&szlig;meister der Ma&szlig;e!
+    </p>
+    <p class="intro" style="font-size:0.95rem;">
+      &#x1F4D0; Phase 1: Verst&auml;ndnisfragen &bull;
+      &#x1F9EE; Phase 2: Berechnungen &bull;
+      &#x2B50; Phase 3: Bonusaufgaben
+    </p>
+    <button class="btn-gold" onclick="startGame()" style="font-size:1.15rem; padding: 16px 40px; margin-top: 12px;">
+      Abenteuer beginnen &#x2728;
+    </button>
+  </div>
+
+  <!-- QUESTION SCREEN -->
+  <div id="screen-question" class="screen"></div>
+
+  <!-- PHASE TRANSITION -->
+  <div id="screen-transition" class="screen"></div>
+
+  <!-- END SCREEN -->
+  <div id="screen-end" class="screen"></div>
+</main>
+
+<!-- RANK-UP MODAL -->
+<div id="rank-modal" style="display:none;"></div>
+
+<script>
+// ============================================================
+//  GAME STATE
+// ============================================================
+const G = {
+  xp: 0,
+  phase: 0,
+  qIndex: 0,
+  attempts: 0,
+  hintsUsed: 0,
+  correctTotal: 0,
+  answeredTotal: 0,
+  currentQuestions: [],
+  phase1Q: [], phase2Q: [], phase3Q: [],
+  phase3Unlocked: false,
+  revealedHints: [],
+  answered: false,
+};
+
+// ============================================================
+//  RANKS
+// ============================================================
+const RANKS = [
+  { xp: 0,   name: 'Neuling',                  icon: '🔮', stars: '' },
+  { xp: 50,  name: 'Lehrling der Geometrie',    icon: '📐', stars: '⭐' },
+  { xp: 120, name: 'Geselle der Formen',        icon: '🧙', stars: '⭐⭐' },
+  { xp: 200, name: 'Magier der Prismen',        icon: '⚗️', stars: '⭐⭐⭐' },
+  { xp: 300, name: 'Meister der Koerper',       icon: '✨', stars: '⭐⭐⭐⭐' },
+  { xp: 400, name: 'Grossmeister der Masse',    icon: '👑', stars: '⭐⭐⭐⭐⭐' },
+];
+
+function getRank(xp) {
+  let r = RANKS[0];
+  for (const rank of RANKS) { if (xp >= rank.xp) r = rank; }
+  return r;
+}
+function getNextRank(xp) {
+  for (const rank of RANKS) { if (xp < rank.xp) return rank; }
+  return null;
+}
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function ri(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function rn(min, max) { return ri(min * 2, max * 2) / 2; }
+function round2(v) { return Math.round(v * 100) / 100; }
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function parseNum(s) {
+  if (!s || !s.trim()) return NaN;
+  return parseFloat(s.trim().replace(',', '.'));
+}
+function checkTol(given, expected) {
+  if (isNaN(given)) return false;
+  const tol = Math.abs(expected) > 100 ? Math.abs(expected) * 0.01 : 0.15;
+  return Math.abs(given - expected) <= tol;
+}
+
+// ============================================================
+//  PARTICLES
+// ============================================================
+function initParticles() {
+  const c = document.getElementById('particles');
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 3 + 1;
+    const colors = ['rgba(255,215,0,0.5)', 'rgba(168,85,247,0.4)', 'rgba(255,255,255,0.3)'];
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      bottom: -10px;
+      background:${colors[i % 3]};
+      animation-duration:${Math.random()*15+10}s;
+      animation-delay:${Math.random()*15}s;
+    `;
+    c.appendChild(p);
+  }
+}
+
+// ============================================================
+//  UI UPDATE
+// ============================================================
+function updateUI() {
+  const rank = getRank(G.xp);
+  const next = getNextRank(G.xp);
+  document.getElementById('rank-icon').textContent = rank.icon;
+  document.getElementById('rank-name').textContent = rank.name;
+  const pct = next ? ((G.xp - rank.xp) / (next.xp - rank.xp)) * 100 : 100;
+  document.getElementById('xp-bar').style.width = Math.min(pct, 100) + '%';
+  document.getElementById('xp-text').textContent = G.xp + ' XP' + (next ? (' / ' + next.xp + ' XP') : ' (MAX)');
+  if (G.currentQuestions.length > 0) {
+    document.getElementById('q-counter').textContent =
+      'Aufgabe ' + (G.qIndex + 1) + ' / ' + G.currentQuestions.length;
+  }
+}
+
+function addXP(amount) {
+  const oldRank = getRank(G.xp);
+  G.xp = Math.max(0, G.xp + amount);
+  const newRank = getRank(G.xp);
+  updateUI();
+  if (newRank.xp > oldRank.xp) showRankUp(newRank);
+}
+
+function showRankUp(rank) {
+  const m = document.getElementById('rank-modal');
+  m.innerHTML = `
+    <div class="modal-overlay" onclick="this.parentElement.style.display='none'">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="rank-stars">${rank.stars || '⭐'}</div>
+        <h2>Rangaufstieg!</h2>
+        <p>Du bist jetzt <strong style="color:var(--accent-gold)">${rank.name}</strong>!<br>Die Magie waechst in dir. ${rank.icon}</p>
+        <button class="btn-gold" onclick="document.getElementById('rank-modal').style.display='none'">Weiter &#x2728;</button>
+      </div>
+    </div>`;
+  m.style.display = 'block';
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================
+//  PHASE 1: MULTIPLE CHOICE QUESTIONS
+// ============================================================
+function genPhase1() {
+  return [
+    {
+      question: 'Welche der folgenden Koerper gehoeren zur Familie der Prismen? Waehle alle zutreffenden aus.',
+      options: [
+        { text: 'Ein dreieckiges Prisma (Toblerone-Form)', correct: true },
+        { text: 'Ein Kegel', correct: false },
+        { text: 'Ein Quader (z.B. ein Schuhkarton)', correct: true },
+        { text: 'Eine Pyramide', correct: false },
+        { text: 'Ein Wuerfel', correct: true },
+        { text: 'Ein Zylinder', correct: false },
+      ],
+      xp: 15,
+    },
+    {
+      question: 'Welche Eigenschaften treffen auf ALLE Prismen zu?',
+      options: [
+        { text: 'Grund- und Deckflaeche sind deckungsgleich (kongruent)', correct: true },
+        { text: 'Grund- und Deckflaeche liegen parallel zueinander', correct: true },
+        { text: 'Die Seitenflaechen (Mantelflaechen) sind immer Quadrate', correct: false },
+        { text: 'Alle Kanten sind gleich lang', correct: false },
+        { text: 'Die Seitenflaechen stehen senkrecht auf der Grundflaeche', correct: true },
+      ],
+      xp: 15,
+    },
+    {
+      question: 'Die Mantelflaeche eines Prismas besteht aus einzelnen Teilflaechen. Welche Aussagen stimmen?',
+      options: [
+        { text: 'Jede Teilflaeche des Mantels hat die Form eines Rechtecks', correct: true },
+        { text: 'Die Anzahl der Mantel-Teilflaechen entspricht der Eckenanzahl der Grundflaeche', correct: true },
+        { text: 'Die Mantelflaeche ist immer groesser als die Grundflaeche', correct: false },
+        { text: 'Alle Mantel-Teilflaechen sind gleich gross', correct: false },
+      ],
+      xp: 10,
+    },
+    {
+      question: 'Ein Prisma hat eine fuenfeckige Grundflaeche. Wie viele Flaechen, Ecken und Kanten hat es? Waehle alle richtigen Aussagen.',
+      options: [
+        { text: 'Es hat 7 Flaechen', correct: true },
+        { text: 'Es hat 10 Ecken', correct: true },
+        { text: 'Es hat 15 Kanten', correct: true },
+        { text: 'Es hat 12 Kanten', correct: false },
+      ],
+      xp: 15,
+    },
+    {
+      question: 'Was passiert mit dem Volumen eines Prismas, wenn man seine Hoehe verdreifacht und die Grundflaeche gleich laesst?',
+      options: [
+        { text: 'Das Volumen verdreifacht sich', correct: true },
+        { text: 'Das Volumen verneunfacht sich', correct: false },
+        { text: 'Das Volumen bleibt gleich', correct: false },
+        { text: 'Die Oberflaeche verdreifacht sich ebenfalls', correct: false },
+      ],
+      xp: 10,
+    },
+    {
+      question: 'Welche Formen kann die Grundflaeche eines Prismas haben?',
+      options: [
+        { text: 'Dreieck', correct: true },
+        { text: 'Kreis', correct: false },
+        { text: 'Sechseck', correct: true },
+        { text: 'Trapez', correct: true },
+        { text: 'Ellipse', correct: false },
+      ],
+      xp: 10,
+    },
+    {
+      question: 'Was passiert mit der Oberflaeche eines Quaders, wenn man ALLE Kantenlaengen verdoppelt?',
+      options: [
+        { text: 'Die Oberflaeche verdoppelt sich', correct: false },
+        { text: 'Die Oberflaeche vervierfacht sich', correct: true },
+        { text: 'Das Volumen verachtfacht sich dabei', correct: true },
+        { text: 'Die Oberflaeche verachtfacht sich', correct: false },
+      ],
+      xp: 15,
+    },
+    {
+      question: 'Welche Aussagen ueber die Berechnung der Oberflaeche eines Prismas sind richtig?',
+      options: [
+        { text: 'Oberflaeche = 2 mal Grundflaeche + Mantelflaeche', correct: true },
+        { text: 'Die Mantelflaeche berechnet man mit: Umfang der Grundflaeche mal Hoehe des Prismas', correct: true },
+        { text: 'Jede Seitenflaeche des Mantels ist ein Dreieck', correct: false },
+        { text: 'Grund- und Deckflaeche haben unterschiedliche Flaecheninhalte', correct: false },
+      ],
+      xp: 10,
+    },
+  ];
+}
+
+// ============================================================
+//  SVG DRAWING HELPERS
+// ============================================================
+const OBL = 0.35;
+
+function p3(x, y, z, ox, oy, sc) {
+  return [ox + (x + z * OBL) * sc, oy - (y + z * OBL) * sc];
+}
+function svgPt(pt) { return pt[0].toFixed(1) + ',' + pt[1].toFixed(1); }
+function svgLine(p1, p2, cls, dash) {
+  return `<line x1="${p1[0].toFixed(1)}" y1="${p1[1].toFixed(1)}" x2="${p2[0].toFixed(1)}" y2="${p2[1].toFixed(1)}" class="${cls||''}" ${dash?'stroke-dasharray="6,4"':''} />`;
+}
+function svgPoly(pts, fill, cls) {
+  return `<polygon points="${pts.map(svgPt).join(' ')}" fill="${fill||'none'}" class="${cls||''}" />`;
+}
+function svgText(pt, txt, anchor, dy) {
+  return `<text x="${pt[0].toFixed(1)}" y="${pt[1].toFixed(1)}" text-anchor="${anchor||'middle'}" dy="${dy||0}" class="dim-label">${txt}</text>`;
+}
+function svgDimLine(p1, p2, label, offset, side) {
+  const mx = (p1[0]+p2[0])/2, my = (p1[1]+p2[1])/2;
+  const dx = p2[0]-p1[0], dy = p2[1]-p1[1];
+  const len = Math.sqrt(dx*dx+dy*dy);
+  if (len < 1) return '';
+  const nx = -dy/len * (offset||12) * (side||1);
+  const ny = dx/len * (offset||12) * (side||1);
+  const a1 = [p1[0]+nx, p1[1]+ny], a2 = [p2[0]+nx, p2[1]+ny];
+  const mp = [(a1[0]+a2[0])/2 + nx*0.5, (a1[1]+a2[1])/2 + ny*0.5];
+  return `
+    <line x1="${p1[0].toFixed(1)}" y1="${p1[1].toFixed(1)}" x2="${a1[0].toFixed(1)}" y2="${a1[1].toFixed(1)}" class="dim-line"/>
+    <line x1="${p2[0].toFixed(1)}" y1="${p2[1].toFixed(1)}" x2="${a2[0].toFixed(1)}" y2="${a2[1].toFixed(1)}" class="dim-line"/>
+    <line x1="${a1[0].toFixed(1)}" y1="${a1[1].toFixed(1)}" x2="${a2[0].toFixed(1)}" y2="${a2[1].toFixed(1)}" class="dim-line" marker-start="url(#arr)" marker-end="url(#arr)"/>
+    ${svgText(mp, label)}`;
+}
+function svgDefs() {
+  return `<defs>
+    <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#ccc"/>
+    </marker>
+  </defs>`;
+}
+function svgWrap(w, h, content) {
+  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"
+    style="max-width:100%;height:auto;">
+    <style>
+      .edge{stroke:#a0a0d0;stroke-width:1.5;fill:none}
+      .edge-hidden{stroke:#6060a0;stroke-width:1;fill:none;stroke-dasharray:6,4}
+      .face-base{fill:rgba(168,85,247,0.2);stroke:#a855f7;stroke-width:1.5}
+      .face-side{fill:rgba(100,100,200,0.08);stroke:#a0a0d0;stroke-width:1.2}
+      .face-top{fill:rgba(200,200,255,0.1);stroke:#a0a0d0;stroke-width:1.2}
+      .dim-line{stroke:#999;stroke-width:0.8;fill:none}
+      .dim-label{fill:#ffd700;font-size:13px;font-weight:600;font-family:sans-serif}
+    </style>
+    ${svgDefs()}
+    ${content}
+  </svg>`;
+}
+
+// Draw a cuboid
+function drawCuboid(w, h, d, labels) {
+  const sc = Math.min(280 / (w + d * OBL + 40), 200 / (h + d * OBL + 30), 18);
+  const ox = 60, oy = 30 + (h + d * OBL) * sc;
+  const A = p3(0,0,0,ox,oy,sc), B = p3(w,0,0,ox,oy,sc);
+  const C = p3(w,h,0,ox,oy,sc), D = p3(0,h,0,ox,oy,sc);
+  const E = p3(0,0,d,ox,oy,sc), F = p3(w,0,d,ox,oy,sc);
+  const G_ = p3(w,h,d,ox,oy,sc), H = p3(0,h,d,ox,oy,sc);
+  const svgW = (w + d*OBL)*sc + 120, svgH = (h + d*OBL)*sc + 70;
+  let s = '';
+  s += svgPoly([A,B,F,E], 'rgba(168,85,247,0.18)', 'face-base');
+  s += svgPoly([A,B,C,D], null, 'face-side');
+  s += svgPoly([B,F,G_,C], null, 'face-side');
+  s += svgPoly([D,C,G_,H], null, 'face-top');
+  s += svgLine(E, H, 'edge-hidden', true);
+  s += svgLine(E, F, 'edge-hidden', true);
+  s += svgLine(H, G_, 'edge-hidden', false);
+  s += svgLine(E, H, 'edge-hidden', true);
+  // dimension labels
+  if (labels) {
+    const u = labels.unit || ' cm';
+    const lA = labels.a || labels.w || '';
+    const lB = labels.b || labels.d || '';
+    const lH = labels.h || '';
+    if (lA) {
+      const mp = [(A[0]+B[0])/2, (A[1]+B[1])/2 + 18];
+      s += svgText(mp, lA + u);
+    }
+    if (lH) {
+      const mp = [A[0] - 18, (A[1]+D[1])/2];
+      s += svgText(mp, lH + u, 'end');
+    }
+    if (lB) {
+      const mp = [(B[0]+F[0])/2 + 14, (B[1]+F[1])/2 - 6];
+      s += svgText(mp, lB + u, 'start');
+    }
+  }
+  return svgWrap(svgW, svgH, s);
+}
+
+// Draw a triangular prism
+function drawTriPrism(g, hTri, hPrism, labels) {
+  const sc = Math.min(260 / (g + hPrism * OBL + 30), 180 / (hTri + hPrism * OBL + 20), 16);
+  const ox = 60, oy = 30 + (hTri + hPrism * OBL) * sc;
+  const A = p3(0,0,0,ox,oy,sc), B = p3(g,0,0,ox,oy,sc), C = p3(g/2,hTri,0,ox,oy,sc);
+  const D = p3(0,0,hPrism,ox,oy,sc), E = p3(g,0,hPrism,ox,oy,sc), F = p3(g/2,hTri,hPrism,ox,oy,sc);
+  const svgW = (g + hPrism*OBL)*sc + 120, svgH = (hTri + hPrism*OBL)*sc + 70;
+  let s = '';
+  s += svgPoly([A,B,C], 'rgba(168,85,247,0.2)', 'face-base');
+  s += svgPoly([A,B,E,D], null, 'face-side');
+  s += svgPoly([B,E,F,C], null, 'face-side');
+  s += svgPoly([C,F,D,A], null, 'face-side');
+  s += svgLine(D, E, 'edge-hidden', true);
+  s += svgPoly([D,E,F], null, 'face-top');
+  if (labels) {
+    const u = labels.unit || ' cm';
+    if (labels.g) s += svgText([(A[0]+B[0])/2, A[1]+18], labels.g + u);
+    if (labels.hTri) {
+      const foot = p3(g/2,0,0,ox,oy,sc);
+      s += svgLine(C, foot, 'dim-line', true);
+      s += svgText([(C[0]+foot[0])/2 - 16, (C[1]+foot[1])/2], labels.hTri + u, 'end');
+    }
+    if (labels.hPrism) {
+      s += svgText([(B[0]+E[0])/2 + 16, (B[1]+E[1])/2], labels.hPrism + u, 'start');
+    }
+  }
+  return svgWrap(svgW, svgH, s);
+}
+
+// Draw a trapezoidal prism
+function drawTrapPrism(a, c, hTrap, hPrism, labels) {
+  const offset = (a - c) / 2;
+  const sc = Math.min(260 / (a + hPrism * OBL + 30), 170 / (hTrap + hPrism * OBL + 20), 14);
+  const ox = 60, oy = 30 + (hTrap + hPrism * OBL) * sc;
+  const A = p3(0,0,0,ox,oy,sc), B = p3(a,0,0,ox,oy,sc);
+  const C = p3(a-offset,hTrap,0,ox,oy,sc), D = p3(offset,hTrap,0,ox,oy,sc);
+  const E = p3(0,0,hPrism,ox,oy,sc), F = p3(a,0,hPrism,ox,oy,sc);
+  const G_ = p3(a-offset,hTrap,hPrism,ox,oy,sc), H = p3(offset,hTrap,hPrism,ox,oy,sc);
+  const svgW = (a + hPrism*OBL)*sc + 120, svgH = (hTrap + hPrism*OBL)*sc + 70;
+  let s = '';
+  s += svgPoly([A,B,C,D], 'rgba(168,85,247,0.2)', 'face-base');
+  s += svgPoly([A,B,F,E], null, 'face-side');
+  s += svgPoly([B,F,G_,C], null, 'face-side');
+  s += svgPoly([D,C,G_,H], null, 'face-top');
+  s += svgLine(E, H, 'edge-hidden', true);
+  s += svgLine(E, F, 'edge-hidden', true);
+  if (labels) {
+    const u = labels.unit || ' cm';
+    if (labels.a) s += svgText([(A[0]+B[0])/2, A[1]+18], labels.a + u);
+    if (labels.c) s += svgText([(D[0]+C[0])/2, D[1]-8], labels.c + u);
+    if (labels.hTrap) {
+      const foot = p3(offset, 0, 0, ox, oy, sc);
+      s += svgLine(D, foot, 'dim-line', true);
+      s += svgText([D[0]-18, (D[1]+foot[1])/2], labels.hTrap + u, 'end');
+    }
+    if (labels.hPrism) {
+      s += svgText([(B[0]+F[0])/2+16, (B[1]+F[1])/2], labels.hPrism + u, 'start');
+    }
+  }
+  return svgWrap(svgW, svgH, s);
+}
+
+// Draw a parallelogram prism
+function drawParaPrism(a, b, hPara, hPrism, labels) {
+  const shift = b * 0.4;
+  const sc = Math.min(250 / (a + shift + hPrism*OBL + 30), 160 / (hPara + hPrism*OBL + 20), 14);
+  const ox = 60, oy = 30 + (hPara + hPrism*OBL)*sc;
+  const A = p3(0,0,0,ox,oy,sc), B = p3(a,0,0,ox,oy,sc);
+  const C = p3(a+shift,hPara,0,ox,oy,sc), D = p3(shift,hPara,0,ox,oy,sc);
+  const E = p3(0,0,hPrism,ox,oy,sc), F = p3(a,0,hPrism,ox,oy,sc);
+  const G_ = p3(a+shift,hPara,hPrism,ox,oy,sc), H = p3(shift,hPara,hPrism,ox,oy,sc);
+  const svgW = (a+shift+hPrism*OBL)*sc+120, svgH = (hPara+hPrism*OBL)*sc+70;
+  let s = '';
+  s += svgPoly([A,B,C,D], 'rgba(168,85,247,0.2)', 'face-base');
+  s += svgPoly([A,B,F,E], null, 'face-side');
+  s += svgPoly([B,F,G_,C], null, 'face-side');
+  s += svgPoly([D,C,G_,H], null, 'face-top');
+  s += svgLine(E,H,'edge-hidden',true);
+  s += svgLine(E,F,'edge-hidden',true);
+  if (labels) {
+    const u = labels.unit || ' cm';
+    if (labels.a) s += svgText([(A[0]+B[0])/2, A[1]+18], labels.a+u);
+    if (labels.hPara) {
+      const foot = p3(0,0,0,ox,oy,sc);
+      const top = p3(0,hPara,0,ox,oy,sc);
+      s += svgLine(foot,top,'dim-line',true);
+      s += svgText([foot[0]-20,(foot[1]+top[1])/2], labels.hPara+u,'end');
+    }
+    if (labels.hPrism) s += svgText([(B[0]+F[0])/2+16,(B[1]+F[1])/2], labels.hPrism+u,'start');
+  }
+  return svgWrap(svgW,svgH,s);
+}
+
+// Draw hexagonal prism (simplified top-down style with oblique)
+function drawHexPrism(s_val, hPrism, labels) {
+  const r = s_val;
+  const hHex = r * Math.sqrt(3) / 2;
+  const sc = Math.min(220 / (2*r + hPrism*OBL + 30), 160 / (2*hHex + hPrism*OBL + 20), 12);
+  const ox = 80, oy = 30 + (2*hHex + hPrism*OBL)*sc;
+  const hexPts = [];
+  for (let i = 0; i < 6; i++) {
+    const angle = Math.PI/6 + i * Math.PI/3;
+    hexPts.push([r + r*Math.cos(angle), hHex + r*Math.sin(angle)]);
+  }
+  const front = hexPts.map(p => p3(p[0], p[1], 0, ox, oy, sc));
+  const back = hexPts.map(p => p3(p[0], p[1], hPrism, ox, oy, sc));
+  const svgW = (2*r + hPrism*OBL)*sc + 140, svgH = (2*hHex + hPrism*OBL)*sc + 70;
+  let svg = '';
+  svg += svgPoly(front, 'rgba(168,85,247,0.2)', 'face-base');
+  for (let i = 0; i < 6; i++) {
+    const j = (i+1)%6;
+    if (i >= 2 && i <= 4) {
+      svg += svgLine(front[i], back[i], 'edge-hidden', true);
+    } else {
+      svg += svgPoly([front[i],front[j],back[j],back[i]], null, 'face-side');
+    }
+  }
+  svg += svgPoly(back, null, 'face-top');
+  if (labels) {
+    const u = labels.unit || ' cm';
+    if (labels.s) {
+      const mp = [(front[0][0]+front[1][0])/2+10, (front[0][1]+front[1][1])/2-8];
+      svg += svgText(mp, labels.s+u, 'start');
+    }
+    if (labels.hPrism) {
+      svg += svgText([(front[1][0]+back[1][0])/2+16, (front[1][1]+back[1][1])/2], labels.hPrism+u, 'start');
+    }
+  }
+  return svgWrap(svgW, svgH, svg);
+}
+
+// Draw L-shaped prism
+function drawLPrism(a1,b1,a2,b2,hPrism,labels) {
+  const totalW = Math.max(a1,a2), totalH = b1+b2;
+  const sc = Math.min(220/(totalW+hPrism*OBL+30), 160/(totalH+hPrism*OBL+20), 12);
+  const ox = 60, oy = 30 + (totalH+hPrism*OBL)*sc;
+  // L-shape: bottom-left rectangle a1 x b1, top-left rectangle a2 x b2
+  const pts = [
+    [0,0],[a1,0],[a1,b1],[a2,b1],[a2,b1+b2],[0,b1+b2]
+  ];
+  const front = pts.map(p => p3(p[0],p[1],0,ox,oy,sc));
+  const back = pts.map(p => p3(p[0],p[1],hPrism,ox,oy,sc));
+  const svgW = (totalW+hPrism*OBL)*sc+120, svgH = (totalH+hPrism*OBL)*sc+70;
+  let svg = '';
+  svg += svgPoly(front, 'rgba(168,85,247,0.2)', 'face-base');
+  for (let i = 0; i < pts.length; i++) {
+    const j = (i+1)%pts.length;
+    if (i < 3) svg += svgPoly([front[i],front[j],back[j],back[i]], null, 'face-side');
+    else svg += svgLine(front[i],back[i],'edge-hidden',true);
+  }
+  svg += svgPoly(back, null, 'face-top');
+  if (labels) {
+    const u = labels.unit || ' cm';
+    if (labels.a1) svg += svgText([(front[0][0]+front[1][0])/2, front[0][1]+18], labels.a1+u);
+    if (labels.b1) svg += svgText([front[1][0]+18, (front[1][1]+front[2][1])/2], labels.b1+u,'start');
+    if (labels.a2) svg += svgText([(front[4][0]+front[5][0])/2-18, (front[4][1]+front[5][1])/2], labels.a2+u,'end');
+    if (labels.b2) svg += svgText([front[5][0]-18, (front[5][1]+front[0][1])/2], (b1+b2)+u,'end');
+    if (labels.hPrism) svg += svgText([(front[1][0]+back[1][0])/2+16,(front[1][1]+back[1][1])/2], labels.hPrism+u,'start');
+  }
+  return svgWrap(svgW,svgH,svg);
+}
+
+// Draw pentagonal (house-shaped) prism
+function drawHousePrism(w, hRect, hTri, hPrism, labels) {
+  const totalH = hRect + hTri;
+  const sc = Math.min(250/(w+hPrism*OBL+30), 170/(totalH+hPrism*OBL+20), 14);
+  const ox = 60, oy = 30 + (totalH+hPrism*OBL)*sc;
+  const pts = [[0,0],[w,0],[w,hRect],[w/2,totalH],[0,hRect]];
+  const front = pts.map(p => p3(p[0],p[1],0,ox,oy,sc));
+  const back = pts.map(p => p3(p[0],p[1],hPrism,ox,oy,sc));
+  const svgW = (w+hPrism*OBL)*sc+120, svgH = (totalH+hPrism*OBL)*sc+70;
+  let svg = '';
+  svg += svgPoly(front, 'rgba(168,85,247,0.2)', 'face-base');
+  for (let i = 0; i < pts.length; i++) {
+    const j = (i+1)%pts.length;
+    if (i < 3) svg += svgPoly([front[i],front[j],back[j],back[i]], null, 'face-side');
+    else svg += svgLine(front[i],back[i],'edge-hidden',true);
+  }
+  svg += svgPoly(back, null, 'face-top');
+  if (labels) {
+    const u = labels.unit || ' cm';
+    if (labels.w) svg += svgText([(front[0][0]+front[1][0])/2, front[0][1]+18], labels.w+u);
+    if (labels.hRect) svg += svgText([front[0][0]-18, (front[0][1]+front[4][1])/2], labels.hRect+u,'end');
+    if (labels.hTri) {
+      const peak = front[3], mid = [(front[2][0]+front[4][0])/2, (front[2][1]+front[4][1])/2];
+      svg += svgLine(peak,[mid[0],mid[1]],'dim-line',true);
+      svg += svgText([peak[0]+14, (peak[1]+mid[1])/2], labels.hTri+u,'start');
+    }
+    if (labels.hPrism) svg += svgText([(front[1][0]+back[1][0])/2+16,(front[1][1]+back[1][1])/2], labels.hPrism+u,'start');
+  }
+  return svgWrap(svgW,svgH,svg);
+}
+
+// ============================================================
+//  PHASE 2: CALCULATION QUESTIONS
+// ============================================================
+function genPhase2() {
+  const questions = [];
+
+  // Q1: Dreieckige Grundflaeche berechnen
+  {
+    const g = ri(4, 12), h = ri(3, 10);
+    const ans = round2(0.5 * g * h);
+    questions.push({
+      title: 'Grundflaeche eines magischen Kristalls',
+      text: `Ein magischer Kristall hat die Form eines dreiseitigen Prismas. Die dreieckige Grundflaeche hat eine Grundseite von <strong>${g} cm</strong> und eine Hoehe von <strong>${h} cm</strong>. Berechne den Flaecheninhalt der Grundflaeche.`,
+      answer: ans, unit: 'cm²', xp: 20,
+      svg: drawTriPrism(g, h, 6, {g: g, hTri: h}),
+      hints: [
+        { text: 'Die Grundflaeche ist ein Dreieck. Welche Formel brauchst du fuer den Flaecheninhalt eines Dreiecks?', cost: 5 },
+        { text: 'Flaecheninhalt Dreieck = 1/2 \u00b7 g \u00b7 h', cost: 10 },
+        { text: `Setze ein: A = 1/2 \u00b7 ${g} \u00b7 ${h} = ...`, cost: 15 },
+      ],
+      solution: `A = 1/2 \u00b7 ${g} cm \u00b7 ${h} cm = ${ans} cm\u00b2`,
+    });
+  }
+
+  // Q2: Volumen eines Quaders
+  {
+    const a = ri(3, 12), b = ri(3, 8), h = ri(3, 10);
+    const ans = a * b * h;
+    questions.push({
+      title: 'Volumen einer magischen Truhe',
+      text: `Eine magische Truhe in der Akademie hat die Form eines Quaders mit den Massen <strong>${a} cm</strong>, <strong>${b} cm</strong> und <strong>${h} cm</strong>. Berechne das Volumen der Truhe.`,
+      answer: ans, unit: 'cm³', xp: 20,
+      svg: drawCuboid(a, h, b, {a: a, b: b, h: h}),
+      hints: [
+        { text: 'Ein Quader ist ein Prisma mit rechteckiger Grundflaeche. Wie berechnet man das Volumen?', cost: 5 },
+        { text: 'Volumen = Laenge \u00b7 Breite \u00b7 Hoehe', cost: 10 },
+        { text: `V = ${a} \u00b7 ${b} \u00b7 ${h} = ...`, cost: 15 },
+      ],
+      solution: `V = ${a} cm \u00b7 ${b} cm \u00b7 ${h} cm = ${ans} cm\u00b3`,
+    });
+  }
+
+  // Q3: Volumen eines dreiseitigen Prismas
+  {
+    const g = ri(4, 10), hTri = ri(3, 8), hP = ri(5, 15);
+    const ans = round2(0.5 * g * hTri * hP);
+    questions.push({
+      title: 'Volumen eines Turmdachs',
+      text: `Das Dach eines Akademie-Turms hat die Form eines dreiseitigen Prismas. Die dreieckige Grundflaeche hat eine Grundseite von <strong>${g} m</strong> und eine Dreieckshoehe von <strong>${hTri} m</strong>. Das Dach ist <strong>${hP} m</strong> lang. Berechne das Volumen.`,
+      answer: ans, unit: 'm³', xp: 25,
+      svg: drawTriPrism(g, hTri, hP, {g: g, hTri: hTri, hPrism: hP, unit: ' m'}),
+      hints: [
+        { text: 'Berechne zuerst die Grundflaeche (Dreieck), dann multipliziere mit der Laenge des Prismas.', cost: 5 },
+        { text: 'V = Grundflaeche \u00b7 Hoehe = (1/2 \u00b7 g \u00b7 h_Dreieck) \u00b7 h_Prisma', cost: 10 },
+        { text: `V = 1/2 \u00b7 ${g} \u00b7 ${hTri} \u00b7 ${hP} = ...`, cost: 15 },
+      ],
+      solution: `G = 1/2 \u00b7 ${g} \u00b7 ${hTri} = ${round2(0.5*g*hTri)} m\u00b2\nV = ${round2(0.5*g*hTri)} \u00b7 ${hP} = ${ans} m\u00b3`,
+    });
+  }
+
+  // Q4: Trapez-Grundflaeche
+  {
+    const a = ri(6, 14), c = ri(3, a - 2), h = ri(3, 8);
+    // Ensure nice result
+    const sum = a + c;
+    const ans = round2(0.5 * sum * h);
+    questions.push({
+      title: 'Querschnitt eines Zaubertrank-Regals',
+      text: `Ein Zaubertrank-Regal hat einen trapezfoermigen Querschnitt. Die parallelen Seiten sind <strong>${a} cm</strong> und <strong>${c} cm</strong> lang, die Hoehe des Trapezes betraegt <strong>${h} cm</strong>. Berechne den Flaecheninhalt des Trapez-Querschnitts.`,
+      answer: ans, unit: 'cm²', xp: 25,
+      svg: drawTrapPrism(a, c, h, 5, {a: a, c: c, hTrap: h}),
+      hints: [
+        { text: 'Ein Trapez hat zwei parallele Seiten (a und c) und eine Hoehe h. Kennst du die Formel?', cost: 5 },
+        { text: 'Flaecheninhalt Trapez = 1/2 \u00b7 (a + c) \u00b7 h', cost: 10 },
+        { text: `A = 1/2 \u00b7 (${a} + ${c}) \u00b7 ${h} = 1/2 \u00b7 ${sum} \u00b7 ${h} = ...`, cost: 15 },
+      ],
+      solution: `A = 1/2 \u00b7 (${a} + ${c}) \u00b7 ${h} = 1/2 \u00b7 ${sum} \u00b7 ${h} = ${ans} cm\u00b2`,
+    });
+  }
+
+  // Q5: Volumen Trapezprisma
+  {
+    const a = ri(5, 12), c = ri(3, a - 2), hT = ri(3, 7), hP = ri(4, 12);
+    const gf = round2(0.5 * (a + c) * hT);
+    const ans = round2(gf * hP);
+    questions.push({
+      title: 'Burggraben ausheben',
+      text: `Der Burggraben um die Akademie hat einen trapezfoermigen Querschnitt. Oben ist er <strong>${a} m</strong> breit, unten <strong>${c} m</strong> breit und <strong>${hT} m</strong> tief. Der Graben soll <strong>${hP} m</strong> lang werden. Wie viel Erde muss ausgehoben werden (Volumen)?`,
+      answer: ans, unit: 'm³', xp: 30,
+      svg: drawTrapPrism(a, c, hT, hP, {a: a, c: c, hTrap: hT, hPrism: hP, unit: ' m'}),
+      hints: [
+        { text: 'Berechne zuerst die Querschnittsflaeche (Trapez), dann multipliziere mit der Laenge.', cost: 5 },
+        { text: 'A_Trapez = 1/2 \u00b7 (a + c) \u00b7 h,  V = A \u00b7 Laenge', cost: 10 },
+        { text: `A = 1/2 \u00b7 (${a} + ${c}) \u00b7 ${hT} = ${gf} m\u00b2. Dann V = ${gf} \u00b7 ${hP} = ...`, cost: 15 },
+      ],
+      solution: `A = 1/2 \u00b7 (${a}+${c}) \u00b7 ${hT} = ${gf} m\u00b2\nV = ${gf} \u00b7 ${hP} = ${ans} m\u00b3`,
+    });
+  }
+
+  // Q6: Oberflaeche eines Quaders
+  {
+    const a = ri(3, 10), b = ri(3, 8), h = ri(3, 9);
+    const ans = 2 * (a*b + a*h + b*h);
+    questions.push({
+      title: 'Geschenkbox bekleben',
+      text: `Eine Geschenkbox fuer den Zauberladen hat die Masse <strong>${a} cm \u00d7 ${b} cm \u00d7 ${h} cm</strong>. Die gesamte Box soll mit magischem Geschenkpapier beklebt werden. Berechne die Oberflaeche der Box.`,
+      answer: ans, unit: 'cm²', xp: 30,
+      svg: drawCuboid(a, h, b, {a: a, b: b, h: h}),
+      hints: [
+        { text: 'Die Oberflaeche eines Quaders besteht aus 6 Rechtecken (3 Paare). Berechne den Flaecheninhalt jedes Paares.', cost: 5 },
+        { text: 'O = 2 \u00b7 (a\u00b7b + a\u00b7h + b\u00b7h)', cost: 10 },
+        { text: `O = 2 \u00b7 (${a}\u00b7${b} + ${a}\u00b7${h} + ${b}\u00b7${h}) = 2 \u00b7 (${a*b} + ${a*h} + ${b*h}) = ...`, cost: 15 },
+      ],
+      solution: `O = 2 \u00b7 (${a*b} + ${a*h} + ${b*h}) = 2 \u00b7 ${a*b+a*h+b*h} = ${ans} cm\u00b2`,
+    });
+  }
+
+  // Q7: Anwendung Volumen – Behaelter befuellen
+  {
+    const a = ri(4, 8), b = ri(3, 6), h = ri(5, 10);
+    const vBox = a * b * h;
+    const total = ri(3, 7) * vBox + ri(1, vBox - 1);
+    const needed = Math.ceil(total / vBox);
+    questions.push({
+      title: 'Zaubertrank-Behaelter fuellen',
+      text: `Der Trank-Meister braucht Behaelter fuer <strong>${total} cm\u00b3</strong> Zaubertrank. Jeder Behaelter ist ein Quader mit den Massen <strong>${a} cm \u00d7 ${b} cm \u00d7 ${h} cm</strong>. Wie viele Behaelter werden mindestens benoetigt?`,
+      answer: needed, unit: 'Stueck', xp: 35,
+      svg: drawCuboid(a, h, b, {a: a, b: b, h: h}),
+      hints: [
+        { text: 'Berechne zuerst das Volumen eines Behaelters. Teile dann das Gesamtvolumen durch das Behaeltervolumen. Denke ans Aufrunden!', cost: 5 },
+        { text: 'V_Behaelter = a \u00b7 b \u00b7 h. Anzahl = Gesamtvolumen / V_Behaelter (aufgerundet!)', cost: 10 },
+        { text: `V = ${a}\u00b7${b}\u00b7${h} = ${vBox} cm\u00b3. ${total} / ${vBox} = ${(total/vBox).toFixed(2)} \u2192 aufrunden auf ...`, cost: 15 },
+      ],
+      solution: `V_Behaelter = ${vBox} cm\u00b3\n${total} \u00f7 ${vBox} = ${(total/vBox).toFixed(2)} \u2192 aufgerundet: ${needed} Behaelter`,
+    });
+  }
+
+  // Q8: Mantelflaeche dreiseitiges Prisma
+  {
+    const a = ri(3, 8), b = ri(3, 8), c = ri(3, 8), hP = ri(5, 12);
+    const umf = a + b + c;
+    const ans = umf * hP;
+    questions.push({
+      title: 'Schutzzauber fuer das Zelt',
+      text: `Auf dem Akademie-Gelaende steht ein dreiseitiges Zelt. Die drei Seiten der dreieckigen Grundflaeche sind <strong>${a} m</strong>, <strong>${b} m</strong> und <strong>${c} m</strong> lang. Das Zelt ist <strong>${hP} m</strong> lang. Berechne die Mantelflaeche des Zeltes (nur die drei Seitenflaechen, ohne Boden und Giebel).`,
+      answer: ans, unit: 'm²', xp: 30,
+      svg: drawTriPrism(Math.max(a,b,c), Math.min(a,b)*0.8, hP, {g: a, hPrism: hP, unit: ' m'}),
+      hints: [
+        { text: 'Die Mantelflaeche besteht aus den Seitenflaechen. Wie haengt sie mit dem Umfang der Grundflaeche zusammen?', cost: 5 },
+        { text: 'Mantelflaeche = Umfang der Grundflaeche \u00b7 Hoehe des Prismas', cost: 10 },
+        { text: `M = (${a} + ${b} + ${c}) \u00b7 ${hP} = ${umf} \u00b7 ${hP} = ...`, cost: 15 },
+      ],
+      solution: `Umfang = ${a}+${b}+${c} = ${umf} m\nM = ${umf} \u00b7 ${hP} = ${ans} m\u00b2`,
+    });
+  }
+
+  // Q9: Hoehe aus Volumen bestimmen
+  {
+    const gf = ri(10, 40), h = ri(4, 15);
+    const vol = gf * h;
+    questions.push({
+      title: 'Aquarium im Magielabor',
+      text: `Ein Aquarium im Magielabor hat eine Grundflaeche von <strong>${gf} dm\u00b2</strong> und fasst <strong>${vol} dm\u00b3</strong> (= ${vol} Liter) Wasser. Wie hoch ist das Aquarium?`,
+      answer: h, unit: 'dm', xp: 25,
+      svg: drawCuboid(Math.sqrt(gf)*1.3, h, Math.sqrt(gf)*0.8, {h: '?', unit: ' dm'}),
+      hints: [
+        { text: 'Das Volumen eines Prismas ist V = Grundflaeche \u00b7 Hoehe. Du kennst V und G \u2013 wie findest du h?', cost: 5 },
+        { text: 'h = V / G (Hoehe = Volumen geteilt durch Grundflaeche)', cost: 10 },
+        { text: `h = ${vol} / ${gf} = ...`, cost: 15 },
+      ],
+      solution: `h = V / G = ${vol} dm\u00b3 / ${gf} dm\u00b2 = ${h} dm`,
+    });
+  }
+
+  // Q10: Oberflaeche ohne Unterseite
+  {
+    const a = ri(4, 12), b = ri(3, 8), h = ri(3, 10);
+    const full = 2*(a*b + a*h + b*h);
+    const ans = full - a*b;
+    questions.push({
+      title: 'Holzbalken lackieren',
+      text: `Ein Holzbalken fuer die Flugbesen-Werkstatt hat die Masse <strong>${a} cm \u00d7 ${b} cm \u00d7 ${h} cm</strong>. Er soll lackiert werden, aber die Unterseite (${a} cm \u00d7 ${b} cm) liegt auf dem Tisch und wird nicht lackiert. Berechne die zu lackierende Flaeche.`,
+      answer: ans, unit: 'cm²', xp: 30,
+      svg: drawCuboid(a, h, b, {a: a, b: b, h: h}),
+      hints: [
+        { text: 'Berechne zuerst die gesamte Oberflaeche des Quaders und ziehe dann die Unterseite ab.', cost: 5 },
+        { text: 'O_ges = 2(ab + ah + bh). Zu lackieren: O_ges - a\u00b7b', cost: 10 },
+        { text: `O_ges = 2\u00b7(${a*b}+${a*h}+${b*h}) = ${full}. Abzug: ${a}\u00b7${b} = ${a*b}. Also: ${full} - ${a*b} = ...`, cost: 15 },
+      ],
+      solution: `O_ges = ${full} cm\u00b2\nAbzug Unterseite: ${a*b} cm\u00b2\nZu lackieren: ${full} - ${a*b} = ${ans} cm\u00b2`,
+    });
+  }
+
+  return questions;
+}
+
+// ============================================================
+//  PHASE 3: BONUS QUESTIONS
+// ============================================================
+function genPhase3() {
+  const questions = [];
+
+  // B1: Sechseckiges Prisma
+  {
+    const s = ri(3, 7);
+    const hTri = round2(s * 0.87); // approx sqrt(3)/2
+    const gf = round2(6 * 0.5 * s * hTri);
+    const hP = ri(5, 12);
+    const ans = round2(gf * hP);
+    questions.push({
+      title: 'Sechseckiger Zauberkristall',
+      text: `Ein Zauberkristall hat die Form eines Prismas mit regelmaessig-sechseckiger Grundflaeche. Das Sechseck besteht aus 6 gleichseitigen Dreiecken. Jedes Dreieck hat eine Grundseite von <strong>${s} cm</strong> und eine Dreieckshoehe von <strong>${hTri} cm</strong>. Der Kristall ist <strong>${hP} cm</strong> hoch. Berechne das Volumen.`,
+      answer: ans, unit: 'cm³', xp: 45,
+      svg: drawHexPrism(s, hP, {s: s, hPrism: hP}),
+      hints: [
+        { text: 'Das Sechseck besteht aus 6 gleichen Dreiecken. Berechne die Flaeche eines Dreiecks und multipliziere mit 6.', cost: 5 },
+        { text: 'G = 6 \u00b7 (1/2 \u00b7 s \u00b7 h_Dreieck), V = G \u00b7 h_Prisma', cost: 10 },
+        { text: `G = 6 \u00b7 1/2 \u00b7 ${s} \u00b7 ${hTri} = ${gf} cm\u00b2. V = ${gf} \u00b7 ${hP} = ...`, cost: 15 },
+      ],
+      solution: `G = 6 \u00b7 1/2 \u00b7 ${s} \u00b7 ${hTri} = ${gf} cm\u00b2\nV = ${gf} \u00b7 ${hP} = ${ans} cm\u00b3`,
+    });
+  }
+
+  // B2: L-foermiges Prisma
+  {
+    const a1 = ri(6, 12), b1 = ri(3, 6), a2 = ri(3, a1-1), b2 = ri(3, 6);
+    const gf = a1 * b1 + a2 * b2;
+    const hP = ri(4, 10);
+    const ans = gf * hP;
+    questions.push({
+      title: 'L-foermiger Geheimgang',
+      text: `Ein Geheimgang in der Akademie hat einen L-foermigen Querschnitt. Der untere Teil ist <strong>${a1} m</strong> breit und <strong>${b1} m</strong> hoch. Der obere Teil ist <strong>${a2} m</strong> breit und <strong>${b2} m</strong> hoch. Der Gang ist <strong>${hP} m</strong> lang. Berechne das Volumen.`,
+      answer: ans, unit: 'm³', xp: 45,
+      svg: drawLPrism(a1, b1, a2, b2, hP, {a1:a1, b1:b1, a2:a2, b2:b2, hPrism:hP, unit: ' m'}),
+      hints: [
+        { text: 'Zerlege die L-Form in zwei Rechtecke und berechne deren Flaechen getrennt.', cost: 5 },
+        { text: 'G = a1\u00b7b1 + a2\u00b7b2,  V = G \u00b7 h_Prisma', cost: 10 },
+        { text: `G = ${a1}\u00b7${b1} + ${a2}\u00b7${b2} = ${a1*b1} + ${a2*b2} = ${gf}. V = ${gf} \u00b7 ${hP} = ...`, cost: 15 },
+      ],
+      solution: `G = ${a1}\u00b7${b1} + ${a2}\u00b7${b2} = ${gf} m\u00b2\nV = ${gf} \u00b7 ${hP} = ${ans} m\u00b3`,
+    });
+  }
+
+  // B3: Mehrstufig (Volumen -> Anzahl -> Kosten)
+  {
+    const a = ri(3, 6), b = ri(3, 5), h = ri(4, 8);
+    const vBox = a * b * h;
+    const nNeeded = ri(5, 15);
+    const totalVol = nNeeded * vBox;
+    const costPer = ri(2, 8);
+    const totalCost = nNeeded * costPer;
+    questions.push({
+      title: 'Kristallkisten fuer den Transport',
+      text: `Kristallkisten fuer den Transport haben die Masse <strong>${a} cm \u00d7 ${b} cm \u00d7 ${h} cm</strong>. Jede Kiste kostet <strong>${costPer} Goldmuenzen</strong>. Es muessen <strong>${totalVol} cm\u00b3</strong> Zauberkristalle transportiert werden. Wie viel kosten die benoetigten Kisten insgesamt?`,
+      answer: totalCost, unit: 'Goldmuenzen', xp: 50,
+      svg: drawCuboid(a, h, b, {a: a, b: b, h: h}),
+      hints: [
+        { text: 'Schritt 1: Volumen einer Kiste. Schritt 2: Wie viele Kisten? Schritt 3: Gesamtkosten.', cost: 5 },
+        { text: 'V = a\u00b7b\u00b7h. Anzahl = Gesamtvolumen / V (aufrunden!). Kosten = Anzahl \u00b7 Preis', cost: 10 },
+        { text: `V = ${vBox} cm\u00b3. Anzahl = ${totalVol}/${vBox} = ${nNeeded}. Kosten = ${nNeeded} \u00b7 ${costPer} = ...`, cost: 15 },
+      ],
+      solution: `V = ${vBox} cm\u00b3\nAnzahl = ${totalVol}/${vBox} = ${nNeeded}\nKosten = ${nNeeded} \u00b7 ${costPer} = ${totalCost} Goldmuenzen`,
+    });
+  }
+
+  // B4: Rueckwaertsrechnen (Hoehe aus Oberflaeche)
+  {
+    const a = ri(4, 8), b = ri(3, 6), h = ri(3, 8);
+    const O = 2*(a*b + a*h + b*h);
+    questions.push({
+      title: 'Unbekannte Hoehe einer Schatzkiste',
+      text: `Eine Schatzkiste (Quader) hat eine Laenge von <strong>${a} cm</strong>, eine Breite von <strong>${b} cm</strong> und eine Oberflaeche von <strong>${O} cm\u00b2</strong>. Berechne die Hoehe der Kiste.`,
+      answer: h, unit: 'cm', xp: 50,
+      svg: drawCuboid(a, h, b, {a: a, b: b, h: '?'}),
+      hints: [
+        { text: 'Setze die bekannten Werte in die Oberflaechenformel ein und loese nach h auf.', cost: 5 },
+        { text: 'O = 2(ab + ah + bh) \u2192 O = 2ab + 2h(a+b) \u2192 h = (O - 2ab) / (2(a+b))', cost: 10 },
+        { text: `h = (${O} - 2\u00b7${a}\u00b7${b}) / (2\u00b7(${a}+${b})) = (${O} - ${2*a*b}) / ${2*(a+b)} = ...`, cost: 15 },
+      ],
+      solution: `h = (${O} - 2\u00b7${a*b}) / (2\u00b7${a+b}) = ${O - 2*a*b} / ${2*(a+b)} = ${h} cm`,
+    });
+  }
+
+  // B5: Vergleich zweier Prismen
+  {
+    const g1 = ri(4, 8), h1Tri = ri(3, 7), h1P = ri(5, 12);
+    const v1 = round2(0.5 * g1 * h1Tri * h1P);
+    const a2 = ri(3, 7), b2 = ri(3, 6), h2P = ri(4, 10);
+    const v2 = a2 * b2 * h2P;
+    const diff = round2(Math.abs(v1 - v2));
+    const bigger = v1 > v2 ? v1 : v2;
+    questions.push({
+      title: 'Welcher Behaelter fasst mehr?',
+      text: `Behaelter A ist ein dreiseitiges Prisma (Grundseite ${g1} cm, Dreieckshoehe ${h1Tri} cm, Laenge ${h1P} cm). Behaelter B ist ein Quader (${a2} cm \u00d7 ${b2} cm \u00d7 ${h2P} cm). Um wie viel cm\u00b3 ist der groessere Behaelter groesser? Gib den Unterschied als positive Zahl an.`,
+      answer: diff, unit: 'cm³', xp: 45,
+      svg: drawCuboid(a2, h2P, b2, {a: a2, b: b2, h: h2P}),
+      hints: [
+        { text: 'Berechne das Volumen beider Behaelter getrennt und bilde die Differenz.', cost: 5 },
+        { text: 'V_A = 1/2 \u00b7 g \u00b7 h_Drei \u00b7 Laenge.  V_B = a \u00b7 b \u00b7 h.  Differenz = |V_A - V_B|', cost: 10 },
+        { text: `V_A = 1/2\u00b7${g1}\u00b7${h1Tri}\u00b7${h1P} = ${v1}.  V_B = ${a2}\u00b7${b2}\u00b7${h2P} = ${v2}.  |${v1}-${v2}| = ...`, cost: 15 },
+      ],
+      solution: `V_A = ${v1} cm\u00b3, V_B = ${v2} cm\u00b3\nDifferenz = |${v1} - ${v2}| = ${diff} cm\u00b3`,
+    });
+  }
+
+  // B6: Einheitenumrechnung (mm -> cm)
+  {
+    const a_mm = ri(20, 80), b_mm = ri(15, 60), h_mm = ri(30, 100);
+    const a_cm = a_mm / 10, b_cm = b_mm / 10, h_cm = h_mm / 10;
+    const ans = round2(a_cm * b_cm * h_cm);
+    questions.push({
+      title: 'Miniaturmodell der Akademie',
+      text: `Ein Miniaturmodell eines Akademie-Gebaeudes hat die Masse <strong>${a_mm} mm \u00d7 ${b_mm} mm \u00d7 ${h_mm} mm</strong>. Berechne das Volumen in <strong>cm\u00b3</strong>.`,
+      answer: ans, unit: 'cm³', xp: 40,
+      svg: drawCuboid(a_mm/10, h_mm/10, b_mm/10, {a: a_mm, b: b_mm, h: h_mm, unit: ' mm'}),
+      hints: [
+        { text: 'Rechne zuerst alle Masse von mm in cm um. 1 cm = 10 mm, also teile durch 10.', cost: 5 },
+        { text: `${a_mm} mm = ${a_cm} cm, ${b_mm} mm = ${b_cm} cm, ${h_mm} mm = ${h_cm} cm. Dann V = a\u00b7b\u00b7h`, cost: 10 },
+        { text: `V = ${a_cm} \u00b7 ${b_cm} \u00b7 ${h_cm} = ...`, cost: 15 },
+      ],
+      solution: `${a_mm} mm = ${a_cm} cm, ${b_mm} mm = ${b_cm} cm, ${h_mm} mm = ${h_cm} cm\nV = ${a_cm}\u00b7${b_cm}\u00b7${h_cm} = ${ans} cm\u00b3`,
+    });
+  }
+
+  // B7: Fuenfeckiges (Haus-) Prisma
+  {
+    const w = ri(5, 10), hR = ri(3, 7), hT = ri(2, 5), hP = ri(4, 10);
+    const gf = round2(w * hR + 0.5 * w * hT);
+    const ans = round2(gf * hP);
+    questions.push({
+      title: 'Dachfoermiges Gewaechshaus',
+      text: `Das magische Gewaechshaus hat einen fuenfeckigen Querschnitt (Rechteck mit Dreieck als Dach). Das Rechteck ist <strong>${w} m</strong> breit und <strong>${hR} m</strong> hoch. Das dreieckige Dach hat eine Hoehe von <strong>${hT} m</strong>. Das Gewaechshaus ist <strong>${hP} m</strong> lang. Berechne das Volumen.`,
+      answer: ans, unit: 'm³', xp: 50,
+      svg: drawHousePrism(w, hR, hT, hP, {w: w, hRect: hR, hTri: hT, hPrism: hP, unit: ' m'}),
+      hints: [
+        { text: 'Der Querschnitt besteht aus einem Rechteck und einem Dreieck. Berechne beide Flaechen und addiere sie.', cost: 5 },
+        { text: 'G = w\u00b7h_Rechteck + 1/2\u00b7w\u00b7h_Dreieck. V = G \u00b7 Laenge', cost: 10 },
+        { text: `G = ${w}\u00b7${hR} + 1/2\u00b7${w}\u00b7${hT} = ${w*hR} + ${round2(0.5*w*hT)} = ${gf}. V = ${gf}\u00b7${hP} = ...`, cost: 15 },
+      ],
+      solution: `G = ${w}\u00b7${hR} + 1/2\u00b7${w}\u00b7${hT} = ${gf} m\u00b2\nV = ${gf} \u00b7 ${hP} = ${ans} m\u00b3`,
+    });
+  }
+
+  // B8: Komplexaufgabe (Prism mit Loch)
+  {
+    const aO = ri(6, 12), bO = ri(5, 10), hO = ri(4, 8);
+    const aI = ri(2, aO - 2), bI = ri(2, bO - 2);
+    const vOuter = aO * bO * hO;
+    const vInner = aI * bI * hO;
+    const ans = vOuter - vInner;
+    questions.push({
+      title: 'Zauberstab-Halter mit Hohlraum',
+      text: `Ein Zauberstab-Halter ist ein Quader (<strong>${aO} cm \u00d7 ${bO} cm \u00d7 ${hO} cm</strong>) mit einem quaderfoermigen Hohlraum (<strong>${aI} cm \u00d7 ${bI} cm</strong>, geht komplett durch, also ${hO} cm tief). Berechne das Volumen des Materials.`,
+      answer: ans, unit: 'cm³', xp: 55,
+      svg: drawCuboid(aO, hO, bO, {a: aO, b: bO, h: hO}),
+      hints: [
+        { text: 'Berechne das Volumen des aeusseren Quaders und ziehe das Volumen des Hohlraums ab.', cost: 5 },
+        { text: 'V_Material = V_aussen - V_innen = aO\u00b7bO\u00b7h - aI\u00b7bI\u00b7h', cost: 10 },
+        { text: `V_aussen = ${vOuter}. V_innen = ${aI}\u00b7${bI}\u00b7${hO} = ${vInner}. V = ${vOuter} - ${vInner} = ...`, cost: 15 },
+      ],
+      solution: `V_aussen = ${vOuter} cm\u00b3\nV_innen = ${vInner} cm\u00b3\nV_Material = ${vOuter} - ${vInner} = ${ans} cm\u00b3`,
+    });
+  }
+
+  return questions;
+}
+
+// ============================================================
+//  GAME FLOW
+// ============================================================
+function startGame() {
+  G.xp = 0; G.phase = 1; G.qIndex = 0; G.attempts = 0;
+  G.hintsUsed = 0; G.correctTotal = 0; G.answeredTotal = 0;
+  G.phase1Q = genPhase1();
+  G.phase2Q = genPhase2();
+  G.phase3Q = genPhase3();
+  G.currentQuestions = G.phase1Q;
+  G.phase3Unlocked = false;
+  updateUI();
+  showQuestion();
+}
+
+function showQuestion() {
+  showScreen('screen-question');
+  G.attempts = 0;
+  G.answered = false;
+  G.revealedHints = [];
+  const q = G.currentQuestions[G.qIndex];
+  const isPhase1 = G.phase === 1;
+  const phaseNames = { 1: 'Phase 1: Verstaendnis', 2: 'Phase 2: Berechnung', 3: 'Phase 3: Bonus' };
+
+  let html = `<div class="question-card">
+    <span class="phase-badge">${phaseNames[G.phase]} ${G.phase > 1 ? '&#x1F9EE;' : '&#x1F4D0;'}</span>`;
+
+  if (q.title) html += `<div class="question-title">${q.title}</div>`;
+  html += `<div class="question-text">${q.question || q.text}</div>`;
+
+  if (q.svg) html += `<div class="svg-container">${q.svg}</div>`;
+
+  if (isPhase1) {
+    // MC options
+    html += '<div class="mc-options" id="mc-options">';
+    const shuffled = q._shuffled || (q._shuffled = shuffle(q.options.map((o,i) => ({...o, idx: i}))));
+    shuffled.forEach((opt, i) => {
+      html += `<div class="mc-option" data-idx="${i}" onclick="toggleMC(this)">
+        <div class="mc-checkbox"></div>
+        <div>${opt.text}</div>
+      </div>`;
+    });
+    html += '</div>';
+  } else {
+    // Calc input
+    html += `<div class="calc-input-row">
+      <input type="text" class="calc-input" id="calc-input" inputmode="decimal"
+        placeholder="Ergebnis eingeben..." autocomplete="off">
+      <span class="calc-unit">${q.unit}</span>
+    </div>`;
+  }
+
+  // Hints (only for calc)
+  if (!isPhase1 && q.hints) {
+    html += '<div class="hint-section" id="hint-section">';
+    q.hints.forEach((h, i) => {
+      html += `<button class="hint-toggle" id="hint-btn-${i}" onclick="revealHint(${i})" style="margin:4px 4px 0 0;">
+        &#x1F52E; Hinweis ${i+1} (-${h.cost} XP)
+      </button>`;
+      html += `<div class="hint-box" id="hint-box-${i}" style="display:none;"></div>`;
+    });
+    html += '</div>';
+  }
+
+  html += '<div id="feedback-area"></div>';
+  html += `<div class="button-row">
+    <button class="btn-primary" id="btn-check" onclick="checkCurrentAnswer()">Zauber wirken &#x2728;</button>
+    <button class="btn-gold" id="btn-next" onclick="nextQuestion()" style="display:none;">Weiter &#x2192;</button>
+  </div>`;
+
+  html += '</div>';
+  document.getElementById('screen-question').innerHTML = html;
+  updateUI();
+
+  // Focus input for calc
+  if (!isPhase1) {
+    setTimeout(() => {
+      const inp = document.getElementById('calc-input');
+      if (inp) inp.focus();
+    }, 100);
+  }
+}
+
+function toggleMC(el) {
+  if (G.answered) return;
+  el.classList.toggle('selected');
+}
+
+function revealHint(idx) {
+  const q = G.currentQuestions[G.qIndex];
+  if (G.revealedHints.includes(idx)) return;
+  if (idx > 0 && !G.revealedHints.includes(idx - 1)) {
+    revealHint(idx - 1);
+    return;
+  }
+  const h = q.hints[idx];
+  G.revealedHints.push(idx);
+  G.hintsUsed++;
+  addXP(-h.cost);
+  document.getElementById('hint-box-' + idx).innerHTML = h.text;
+  document.getElementById('hint-box-' + idx).style.display = 'block';
+  document.getElementById('hint-btn-' + idx).disabled = true;
+  document.getElementById('hint-btn-' + idx).textContent = `\u2705 Hinweis ${idx + 1} (verwendet)`;
+}
+
+// ============================================================
+//  ANSWER CHECKING
+// ============================================================
+function checkCurrentAnswer() {
+  if (G.answered) return;
+  const q = G.currentQuestions[G.qIndex];
+  const isPhase1 = G.phase === 1;
+  const fb = document.getElementById('feedback-area');
+
+  if (isPhase1) {
+    checkMC(q, fb);
+  } else {
+    checkCalc(q, fb);
+  }
+}
+
+function checkMC(q, fb) {
+  G.answered = true;
+  const shuffled = q._shuffled;
+  const options = document.querySelectorAll('.mc-option');
+  let allCorrect = true;
+
+  options.forEach((el, i) => {
+    const opt = shuffled[i];
+    const selected = el.classList.contains('selected');
+    if (opt.correct) {
+      el.classList.add('correct-reveal');
+      if (!selected) allCorrect = false;
+    } else {
+      if (selected) {
+        el.classList.add('wrong-reveal');
+        allCorrect = false;
+      }
+    }
+  });
+
+  G.answeredTotal++;
+  if (allCorrect) {
+    G.correctTotal++;
+    addXP(q.xp);
+    fb.innerHTML = `<div class="feedback feedback-correct">
+      &#x2705; Exzellent! Dein Zauber war perfekt. <span class="xp-popup">+${q.xp} XP</span>
+    </div>`;
+  } else {
+    fb.innerHTML = `<div class="feedback feedback-wrong">
+      &#x274C; Nicht ganz richtig. Die korrekten Antworten sind jetzt gr\u00fcn markiert.
+    </div>`;
+  }
+  document.getElementById('btn-check').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'inline-block';
+}
+
+function checkCalc(q, fb) {
+  const input = document.getElementById('calc-input');
+  const given = parseNum(input.value);
+
+  if (isNaN(given)) {
+    fb.innerHTML = '<div class="feedback feedback-wrong">Bitte gib eine Zahl ein.</div>';
+    return;
+  }
+
+  G.attempts++;
+
+  if (checkTol(given, q.answer)) {
+    G.answered = true;
+    G.answeredTotal++;
+    G.correctTotal++;
+    const xpGain = q.xp;
+    addXP(xpGain);
+    fb.innerHTML = `<div class="feedback feedback-correct">
+      &#x2705; Perfekt! Die Antwort ist ${q.answer} ${q.unit}. <span class="xp-popup">+${xpGain} XP</span>
+    </div>`;
+    input.disabled = true;
+    document.getElementById('btn-check').style.display = 'none';
+    document.getElementById('btn-next').style.display = 'inline-block';
+    disableHints();
+  } else if (G.attempts >= 3) {
+    G.answered = true;
+    G.answeredTotal++;
+    fb.innerHTML = `<div class="feedback feedback-wrong">
+      &#x274C; Leider nicht richtig. Du hast 3 Versuche gebraucht.
+    </div>
+    <div class="feedback feedback-solution">
+      <strong>Loesung:</strong><br>${q.solution.replace(/\n/g, '<br>')}
+    </div>`;
+    input.disabled = true;
+    document.getElementById('btn-check').style.display = 'none';
+    document.getElementById('btn-next').style.display = 'inline-block';
+    disableHints();
+  } else {
+    const remaining = 3 - G.attempts;
+    fb.innerHTML = `<div class="feedback feedback-wrong">
+      &#x274C; Dieser Zauber braucht noch \u00dcbung. Versuch es erneut! (${remaining} ${remaining===1?'Versuch':'Versuche'} \u00fcbrig)
+    </div>`;
+    input.value = '';
+    input.focus();
+  }
+}
+
+function disableHints() {
+  const btns = document.querySelectorAll('.hint-toggle');
+  btns.forEach(b => b.disabled = true);
+}
+
+// ============================================================
+//  NAVIGATION
+// ============================================================
+function nextQuestion() {
+  G.qIndex++;
+  if (G.qIndex >= G.currentQuestions.length) {
+    endPhase();
+  } else {
+    showQuestion();
+  }
+}
+
+function endPhase() {
+  if (G.phase === 1) {
+    showTransition(
+      'Phase 1 abgeschlossen! &#x1F4D0;',
+      'Hervorragend! Du hast die Verstaendnisfragen gemeistert. Nun warten Berechnungsaufgaben auf dich. Nutze die magischen Hinweise, wenn du Hilfe brauchst!',
+      () => { G.phase = 2; G.qIndex = 0; G.currentQuestions = G.phase2Q; showQuestion(); }
+    );
+  } else if (G.phase === 2) {
+    G.phase3Unlocked = true;
+    showTransition(
+      'Phase 2 abgeschlossen! &#x1F9EE;',
+      'Beeindruckend, junger Magier! Die Bonusaufgaben der Akademie wurden freigeschaltet. Bist du bereit fuer die Herausforderung der Meister?',
+      () => { G.phase = 3; G.qIndex = 0; G.currentQuestions = G.phase3Q; showQuestion(); },
+      true
+    );
+  } else {
+    showEndScreen();
+  }
+}
+
+function showTransition(title, text, onContinue, showSkip) {
+  let html = `<h2>${title}</h2><p>${text}</p>
+    <div style="margin-top:20px;">
+      <button class="btn-gold" onclick="transitionAction()">${G.phase === 2 ? 'Bonusaufgaben starten &#x2B50;' : 'Weiter &#x2728;'}</button>`;
+  if (showSkip) {
+    html += `<br><button class="btn-secondary" style="margin-top:12px;" onclick="skipToEnd()">Spiel beenden (ohne Bonus)</button>`;
+  }
+  html += '</div>';
+  document.getElementById('screen-transition').innerHTML = html;
+  showScreen('screen-transition');
+  window._transitionAction = onContinue;
+}
+
+function transitionAction() { if (window._transitionAction) window._transitionAction(); }
+function skipToEnd() { showEndScreen(); }
+
+function showEndScreen() {
+  const rank = getRank(G.xp);
+  const totalQ = G.answeredTotal;
+  const messages = {
+    0: 'Du hast deine ersten Schritte gemacht. Mit etwas \u00dcbung wirst du ein grosser Magier!',
+    50: 'Gut gemacht! Du verstehst die Grundlagen. Bleib dran!',
+    120: 'Beeindruckend! Du hast ein solides Verstaendnis der Prismenmagie entwickelt.',
+    200: 'Hervorragend! Die Prismen gehorchen deinem Willen. Ein wahrer Magier!',
+    300: 'Meisterhaft! Nur wenige erreichen diesen Rang in der Akademie.',
+    400: 'Legend\u00e4r! Du bist ein wahrer Grossmeister. Die Akademie ist stolz auf dich!',
+  };
+  const msg = messages[rank.xp] || messages[0];
+
+  const html = `<div class="end-card">
+    <h2>Abenteuer abgeschlossen!</h2>
+    <div class="end-rank-icon">${rank.icon}</div>
+    <div class="end-rank-name">${rank.name}</div>
+    <div class="end-stats">
+      <div class="end-stat"><span class="label">Gesammelte XP</span><span class="value" style="color:var(--accent-gold)">${G.xp} XP</span></div>
+      <div class="end-stat"><span class="label">Korrekte Aufgaben</span><span class="value">${G.correctTotal} / ${totalQ}</span></div>
+      <div class="end-stat"><span class="label">Genutzte Hinweise</span><span class="value">${G.hintsUsed}</span></div>
+      <div class="end-stat"><span class="label">Bonusaufgaben</span><span class="value">${G.phase3Unlocked ? 'Freigeschaltet &#x2705;' : 'Nicht erreicht'}</span></div>
+    </div>
+    <div class="end-message">${msg}</div>
+    <button class="btn-gold" onclick="location.reload()" style="margin-top:20px;">Neues Abenteuer starten &#x1F504;</button>
+  </div>`;
+  document.getElementById('screen-end').innerHTML = html;
+  showScreen('screen-end');
+}
+
+// ============================================================
+//  KEYBOARD SUPPORT
+// ============================================================
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    if (!G.answered && document.getElementById('btn-check') && document.getElementById('btn-check').style.display !== 'none') {
+      checkCurrentAnswer();
+    } else if (G.answered && document.getElementById('btn-next') && document.getElementById('btn-next').style.display !== 'none') {
+      nextQuestion();
+    }
+  }
+});
+
+// ============================================================
+//  INIT
+// ============================================================
+initParticles();
+updateUI();
+</script>
+</body>
+</html>
